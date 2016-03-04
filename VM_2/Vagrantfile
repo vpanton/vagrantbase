@@ -10,38 +10,45 @@ DOMAIN="sample.com"
 # Массив из хешей, в котором заданы настройки для каждой виртуальной машины
 servers=[
   {
+    :box_name => "ubuntu/trusty64",
     :hostname => "app1." + DOMAIN,
     :ip => BRIDGE_NET + "150",
     :ip_int => HOST_ONLY_ADAPTER + "101",
+    :cpu => 1,
     :ram => 512
   },
   {
+    :box_name => "ubuntu/trusty64",
     :hostname => "app2." + DOMAIN,
     :ip => BRIDGE_NET + "151",
     :ip_int => HOST_ONLY_ADAPTER + "102",
+    :cpu => 1,
     :ram => 512
-  },
-  {
-    :hostname => "db1." + DOMAIN,
-    :ip => BRIDGE_NET + "152",
-    :ip_int => HOST_ONLY_ADAPTER + "103",
-    :ram => 512,
-    :hdd_name => "db1_hdd.vdi",
-    :hdd_size => "10000"
-  },
-  {
-    :hostname => "db2." + DOMAIN,
-    :ip => BRIDGE_NET + "153",
-    :ip_int => HOST_ONLY_ADAPTER + "104",
-    :ram => 512,
-    :hdd_name => "db2_hdd.vdi",
-    :hdd_size => "10000"
-  }
+  } #,
+#  {
+#    :box_name => "ubuntu/trusty64",
+#    :hostname => "db1." + DOMAIN,
+#    :ip => BRIDGE_NET + "152",
+#    :ip_int => HOST_ONLY_ADAPTER + "103",
+#    :cpu => 1,
+#    :ram => 512,
+#   :hdd_name => "db1_hdd.vdi",
+#    :hdd_size => "10000"
+#  },
+#  {
+#    :box_name => "ubuntu/trusty64",
+#    :hostname => "db2." + DOMAIN,
+#    :ip => BRIDGE_NET + "153",
+#    :ip_int => HOST_ONLY_ADAPTER + "104",
+#    :cpu => 1,
+#    :ram => 512,
+#    :hdd_name => "db2_hdd.vdi",
+#    :hdd_size => "10000"
+# }
 ]
 
 # Входим в Главную конфигурацию vagrant версии 2
 Vagrant.configure(2) do |config|
-    config.vm.box = "ubuntu/trusty64"
     # Добавить шару между хостовой и гостевой машиной
     #config.vm.synced_folder "D://hostmachine/shared/folder", "/src/shara"
     # Отключить дефолтную шару
@@ -50,12 +57,10 @@ Vagrant.configure(2) do |config|
     servers.each do |machine|
         # Применяем конфигурации для каждой машины. Имя машины(как ее будет видно в Vbox GUI) находится в переменной "machine[:hostname]"
         config.vm.define machine[:hostname] do |node|
-            # Поднять машину из образа "ubuntu 14.04", который мы создали в предыдущей статье
-            node.vm.box = "ubuntu 14.04"
+            # Поднять машину из образа "ubuntu/trusty64", который мы создали в предыдущей статье
+            node.vm.box = machine[:box_name]
             # Также, можно указать URL откуда стянуть нужный box если такой есть
             #node.vm.box_url = "http://files.vagrantup.com/precise64.box"
-            # Пул портов, который будет использоваться для подключения к каждый VM через 127.0.0.1
-            node.vm.usable_port_range = (2200..2250)
             # Hostname который будет присвоен VM (самой ОС)
             node.vm.hostname = machine[:hostname]
             #VBoxManage.exe list bridgedifs overwrite NAT adapter :adapter=>1
@@ -63,6 +68,8 @@ Vagrant.configure(2) do |config|
             #node.vm.network "public_network", ip: machine[:ip], bridge: 'Intel(R) Centrino(R) Wireless-N 130'
           # Добавление и настройка внутреннего сетевого адаптера (Intnet)/ Host-Only Adapter
             node.vm.network "private_network", ip: machine[:ip_int] # virtualbox__intnet: "intnet"
+            # Пул портов, который будет использоваться для подключения к каждый VM через 127.0.0.1
+            node.vm.usable_port_range = (2200..2250)
             # Настройка SSH доступа
             # Домен/IP для подключения
             #node.ssh.host = machine[:ip]
@@ -75,7 +82,10 @@ Vagrant.configure(2) do |config|
             # Тонкие настройки для конкретного провайдера (в нашем случаи - VBoxManage)
             node.vm.provider "virtualbox" do |vb|
                 # Размер RAM памяти
-                vb.customize ["modifyvm", :id, "--memory", machine[:ram]]
+                #vb.customize ["modifyvm", :id, "--memory", machine[:ram], "--cpus", machine[:cpu]]
+                vb.memory = machine[:ram]
+                # set the number of cpus
+                vb.cpus = machine[:cpu]
                 # Можно перезаписать название VM в Vbox GUI
                 vb.name = machine[:hostname]
                 # Добавление жесткого диска, если такой указан в конфигурации

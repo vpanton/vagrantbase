@@ -16,16 +16,19 @@ servers=[
     :ip_int => HOST_ONLY_ADAPTER + "101",
     :cpu => 1,
     :ram => 512,
-    forwarded_ports = {"80" => 8080, "443" => 8443}
-  } #,
+    :host_ssh_port => 2223,
+    :forwarded_ports => {"80" => "8080", "443" => "8443"},  # "guest_port" => "host_port"
+    :synced_folder => {"D://Downloads" => "/mnt/shara"}     # "host_path" => "guest_path"
+#    :init_script => "test.sh"
+  }
+  #,
 #  {
 #    :box_name => "ubuntu/trusty64",
 #    :hostname => "app2." + DOMAIN,
 #    :ip => BRIDGE_NET + "151",
 #    :ip_int => HOST_ONLY_ADAPTER + "102",
 #    :cpu => 1,
-#    :ram => 512,
-#    forwarded_ports : {80 => 8080, 443 => 8443}
+#    :ram => 512
 #  } #,
 #  {
 #    :box_name => "ubuntu/trusty64",
@@ -34,7 +37,7 @@ servers=[
 #    :ip_int => HOST_ONLY_ADAPTER + "103",
 #    :cpu => 1,
 #    :ram => 512,
-#   :hdd_name => "db1_hdd.vdi",
+#    :hdd_name => "db1_hdd.vdi",
 #    :hdd_size => "10000"
 #  },
 #  {
@@ -49,10 +52,14 @@ servers=[
 # }
 ]
 
+$init_script = <<SCRIPT
+sudo apt-get update
+sudo apt-get install -y mc
+SCRIPT
+
+
 # Входим в Главную конфигурацию vagrant версии 2
 Vagrant.configure(2) do |config|
-    # Добавить шару между хостовой и гостевой машиной
-    #config.vm.synced_folder "D://hostmachine/shared/folder", "/src/shara"
     # Отключить дефолтную шару
     config.vm.synced_folder ".", "/vagrant", disabled: true
     # Проходим по элементах массива "servers"
@@ -68,16 +75,26 @@ Vagrant.configure(2) do |config|
             #VBoxManage.exe list bridgedifs overwrite NAT adapter :adapter=>1
             # Добавление и настройка Bridge сетевого адаптера(моста) NAT. Чтобы узнать точное название birdge адаптера, нужно использовать VBoxManage.exe (смотрите ниже)
             #node.vm.network "public_network", ip: machine[:ip], bridge: 'Intel(R) Centrino(R) Wireless-N 130'
-          # Добавление и настройка внутреннего сетевого адаптера (Intnet)/ Host-Only Adapter
+            # Добавление и настройка внутреннего сетевого адаптера (Intnet)/ Host-Only Adapter
             node.vm.network "private_network", ip: machine[:ip_int]
             # Пул портов, который будет использоваться для подключения к каждый VM через 127.0.0.1
             node.vm.usable_port_range = (2200..2250)
-
-            forwarded_ports.each do |guest, host|
-              config.vm.network "forwarded_port", guest: "#{guest}", host: "#{host}"
+            # Проброс портов между хостовой и гостевой машиной, если указаны в конфигурации
+            if (!machine[:forwarded_ports].nil?)
+              machine[:forwarded_ports].each do |guest_port, host_port|
+                node.vm.network "forwarded_port", guest: "#{guest_port}", host: "#{host_port}"
+              end
             end
-
+            # Добавить шару между хостовой и гостевой машиной, если указаны в конфигурации
+            if (!machine[:synced_folder].nil?)
+              machine[:synced_folder].each do |host_path, guest_path|
+                node.vm.synced_folder "#{host_path}", "#{guest_path}"
+              end
+            end
             # Настройка SSH доступа
+            if (!machine[:host_ssh_port].nil?)
+              node.vm.network :forwarded_port, guest: 22, host: machine[:host_ssh_port], id: "ssh"
+            end
             # Домен/IP для подключения
             #node.ssh.host = machine[:ip]
             # Для доступа по ранее добавленному ключу
@@ -106,9 +123,11 @@ Vagrant.configure(2) do |config|
                 end
                 # Где хранить snapshot
                 #vb.customize ["modifyvm", :id, "--snapshotfolder", "D:\\test"]
-                # Еще один способ сменить название VM в Vbox GUI
-                #vb.customize ["modifyvm", :id, "--name", "Gangnam Style"]
             end
+            if (!machine[:init_script].nil?)
+              node.vm.provision "shell", path: machine[:init_script]
+            end
+            node.vm.provision "shell", inline: $init_script
         end
     end
 end

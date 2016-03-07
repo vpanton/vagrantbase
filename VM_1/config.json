@@ -1,0 +1,32 @@
+{
+  "nodes": {
+    "node1": {
+      "box_name": "ubuntu/trusty64",
+      "domain_name": ".sample.com",
+      "memory": 512,
+      "cpu": 1,
+      "ip_host_only_adapter": "192.168.56.101",
+      "host_ssh_port": 2223,
+      "synced_folder": [
+        {
+          "host_path": "D://Downloads",
+          "guest_path": "/mnt/shara"
+        }
+      ],
+      "forwarded_ports": [
+        {
+          "host": 8080,
+          "guest": 80,
+          "id": "http"
+        },
+        {
+          "host": 8443,
+          "guest": 443,
+          "id": "https"
+        }
+      ],
+      "init_script": "test.sh",
+      "second_hdd_size": 10000
+    }
+  }
+}

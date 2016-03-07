@@ -1,30 +1,63 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# read vm configurations from JSON files
+nodes_config = (JSON.parse(File.read("config.json")))['nodes']
+
+
 Vagrant.configure(2) do |config|
-
-  config.vm.box = "ubuntu/trusty64"
-
-  # config.vm.box_check_update = false
-
-  # config.vm.network "forwarded_port", guest: 22, host: 2223
-
-  config.vm.network "private_network", ip: "192.168.56.101"
-
-  # config.vm.network "public_network"
-
-  # config.vm.synced_folder "D:/Docker", "/vagrant_data"
-
-   config.vm.provider "virtualbox" do |vb|
-  #   vb.gui = true
-     vb.memory = "512"
-
-   end
-
-   config.vm.provision "shell", inline: <<-SHELL
-     sudo apt-get update
-  #   sudo apt-get install -y apache2
-     sudo apt-get install -y mc
-   SHELL
-
-end
+    # Отключить дефолтную шару
+    config.vm.synced_folder ".", "/vagrant", disabled: true
+    nodes_config.each do |node|
+      node_name   = node[0] # name of node
+      node_values = node[1] # content of node
+      config.vm.define node_name do |config|
+        # Поднять машину из образа "ubuntu/trusty64"
+        config.vm.box = node_values['box_name']
+        # Проброс портов между хостовой и гостевой машиной, если указаны в JSON конфигурации
+        if (!node_values['forwarded_ports'].nil?)
+          ports = node_values['forwarded_ports']
+          ports.each do |port|
+            config.vm.network :forwarded_port, host: port['host'], guest: port['guest'], id: port['id']
+          end
+        end
+        # Настройка SSH доступа
+        if (!node_values['host_ssh_port'].nil?)
+          config.vm.network :forwarded_port, guest: 22, host: node_values['host_ssh_port'], id: "ssh"
+        end
+        # Отключить дефолтную шару
+        config.vm.synced_folder ".", "/vagrant", disabled: true
+        # Добавить шару между хостовой и гостевой машиной, если указаны в JSON конфигурации
+        if (!node_values['synced_folder'].nil?)
+          synced_folder = node_values['synced_folder']
+          synced_folder.each do |path|
+            config.vm.synced_folder path['host_path'], path['guest_path']
+          end
+        end
+        # Hostname который будет присвоен VM (самой ОС)
+        config.vm.hostname = node_name + node_values['domain_name']
+        config.vm.network :private_network, ip: node_values['ip_host_only_adapter']
+        config.vm.provider :virtualbox do |vb|
+          # Размер RAM памяти
+          vb.memory = node_values['memory']
+          # set the number of cpus
+          vb.cpus = node_values['cpu']
+          # Можно перезаписать название VM в Vbox GUI
+          vb.name = node_name + node_values['domain_name']
+          # Добавление жесткого диска, если такой указан в конфигурации
+          if (!node_values['second_hdd_size'].nil?)
+            second_hdd_name = node_name + "_hdd.vdi"
+            # Не создавать диск, если он уже существует
+            unless File.exist?(second_hdd_name)
+              vb.customize ["createhd", "--filename", second_hdd_name, "--size", node_values['second_hdd_size']]
+            end
+            # Подключить созданный диск к поточной VM
+            vb.customize ["storageattach", :id, "--storagectl", "SATA", "--port", 1, "--device", 0, "--type", "hdd", "--medium", second_hdd_name]
+          end # if (!node_values['second_hdd_size']
+        end # config.vm.provider :virtualbox
+#        if (!node_values['init_script'].nil?)
+#          config.vm.provision "shell", path: node_values['init_script']
+#        end
+      end # config.vm.define node_name
+    end # nodes_config.each
+end  # Vagrant.configure(2)

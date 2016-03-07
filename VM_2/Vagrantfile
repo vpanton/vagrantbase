@@ -15,7 +15,7 @@ servers=[
     :ip => BRIDGE_NET + "150",
     :ip_int => HOST_ONLY_ADAPTER + "101",
     :cpu => 1,
-    :ram => 512,
+    :memory => 512,
     :host_ssh_port => 2223,
     :forwarded_ports => {"80" => "8080", "443" => "8443"},  # "guest_port" => "host_port"
     :synced_folder => {"D://Downloads" => "/mnt/shara"}     # "host_path" => "guest_path"
@@ -28,7 +28,7 @@ servers=[
 #    :ip => BRIDGE_NET + "151",
 #    :ip_int => HOST_ONLY_ADAPTER + "102",
 #    :cpu => 1,
-#    :ram => 512
+#    :memory => 512
 #  } #,
 #  {
 #    :box_name => "ubuntu/trusty64",
@@ -36,7 +36,7 @@ servers=[
 #    :ip => BRIDGE_NET + "152",
 #    :ip_int => HOST_ONLY_ADAPTER + "103",
 #    :cpu => 1,
-#    :ram => 512,
+#    :memory => 512,
 #    :hdd_name => "db1_hdd.vdi",
 #    :hdd_size => "10000"
 #  },
@@ -46,7 +46,7 @@ servers=[
 #    :ip => BRIDGE_NET + "153",
 #    :ip_int => HOST_ONLY_ADAPTER + "104",
 #    :cpu => 1,
-#    :ram => 512,
+#    :memory => 512,
 #    :hdd_name => "db2_hdd.vdi",
 #    :hdd_size => "10000"
 # }
@@ -107,7 +107,7 @@ Vagrant.configure(2) do |config|
             node.vm.provider "virtualbox" do |vb|
                 # Размер RAM памяти
                 #vb.customize ["modifyvm", :id, "--memory", machine[:ram], "--cpus", machine[:cpu]]
-                vb.memory = machine[:ram]
+                vb.memory = machine[:memory]
                 # set the number of cpus
                 vb.cpus = machine[:cpu]
                 # Можно перезаписать название VM в Vbox GUI

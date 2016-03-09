@@ -19,15 +19,10 @@
           "host": 8080,
           "guest": 80,
           "id": "http"
-        },
-        {
-          "host": "",
-          "guest": 443,
-          "id": "https"
         }
       ],
       "init_script": "",
-      "hdd2_size": "10"
+      "hdd2_size": ""
     }
   }
 }

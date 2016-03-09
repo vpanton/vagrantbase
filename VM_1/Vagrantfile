@@ -15,8 +15,7 @@ Vagrant.configure(2) do |config|
         # Поднять машину из образа "ubuntu/trusty64"
         config.vm.box = node_values['box_name']
         # Проброс портов между хостовой и гостевой машиной, если указаны в JSON конфигурации
-        ports = node_values['forwarded_ports']
-        ports.each do |port|
+        node_values['forwarded_ports'].each do |port|
           if (port['host'] != "")
             config.vm.network :forwarded_port, host: port['host'], guest: port['guest'], id: port['id']
           end
@@ -26,8 +25,7 @@ Vagrant.configure(2) do |config|
         # Отключить дефолтную шару
         config.vm.synced_folder ".", "/vagrant", disabled: true
         # Добавить шару между хостовой и гостевой машиной, если указаны в JSON конфигурации
-        synced_folder = node_values['synced_folder']
-        synced_folder.each do |path|
+        node_values['synced_folder'].each do |path|
           if (path['host_path'] != "")
             config.vm.synced_folder path['host_path'], path['guest_path']
           end

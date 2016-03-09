@@ -21,13 +21,13 @@
           "id": "http"
         },
         {
-          "host": 8443,
+          "host": "",
           "guest": 443,
           "id": "https"
         }
       ],
-      "init_script": "test.sh",
-      "hdd2_size": 10000
+      "init_script": "",
+      "hdd2_size": "10"
     }
   }
 }

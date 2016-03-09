@@ -1,6 +1,7 @@
 {
   "nodes": {
     "node1": {
+      "vbox_vms_path": "D://VirtualBox VMs",
       "box_name": "ubuntu/trusty64",
       "domain_name": ".sample.com",
       "memory": 512,
@@ -26,7 +27,7 @@
         }
       ],
       "init_script": "test.sh",
-      "second_hdd_size": 10000
+      "hdd2_size": 10000
     }
   }
 }

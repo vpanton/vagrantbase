@@ -1,0 +1,69 @@
+oracle_user: oracle
+oracle_install_group: oinstall
+extra_groups:
+  - dba
+  - oper
+oracle_base: /oracle/app
+
+installer_archives:
+  - 'linuxamd64_12102_database_1of2.zip'
+  - 'linuxamd64_12102_database_2of2.zip'
+
+oracle_install_version: '12102'
+dbhome_name: 'dbhome_1'
+oracle_edition: 'EE'
+oracle_dba_group: dba
+oracle_oper_group: oper
+oracle_database_type: 'GENERAL_PURPOSE'
+oracle_globalname: 'orcl.oradb3.private'
+oracle_sid: 'orcl'
+create_container_database: 'true'
+number_of_pdbs: '1'
+oracle_conf_as_container_db: 'true'
+pdb_prefix: 'db'
+oracle_pdb_name: 'db01'
+oracle_charset: 'AL32UTF8'
+oracle_memory_option: 'false'
+# memory target
+oracle_memory_mb: 1536
+oracle_install_samples: 'true'
+oracle_management_option: 'DEFAULT'
+oracle_enable_recovery: 'true'
+oracle_storage_type: 'FILE_SYSTEM_STORAGE'
+oracle_dataloc: '{{ oracle_base }}/oradata'
+oracle_recoveryloc: '{{ oracle_base }}/recovery_area'
+oracle_decline_security_updates: 'yes'
+hugepages_nr: 578
+
+# Username of the host machine. We use it for restart the vagrant machine
+#host_username: chris
+
+# Oracle os user and group
+oracle_user: 'oracle'
+oracle_group: 'oinstall'
+# Software and configuration main directory
+oracle_base: '/oracle/fmw12.2.1'
+
+# JDK installer and target folder
+jdk_installation_archive: 'jdk-8u131-linux-x64.tar.gz'
+jdk_folder: '{{ oracle_base }}/jdk1.8.0_131'
+
+# fmw installer
+mw_installer: 'fmw_12.2.1.2.0_infrastructure.jar'
+
+# database settings for repository
+dbserver_name: '192.168.56.102'
+dbserver_port: '1521'
+dbserver_service: 'db.oradb3.private'
+repository_prefix: 'wls12c2'
+
+# Domain Name
+domain_name: 'adf_domain'
+
+# Nodemanager and server settings
+node_manager_listen_port: '5556'
+node_manager_listen_address: 'localhost'
+admin_server_hostname: 'localhost'
+admin_server_port: '7001'
+managed_server_name: 'adfsrv1'
+managed_server_port: '7003'

@@ -8,6 +8,7 @@ nodes_config = (JSON.parse(File.read("config.json")))['nodes']
 Vagrant.configure(2) do |config|
     # Отключить дефолтную шару
     config.vm.synced_folder ".", "/vagrant", disabled: true
+    config.vbguest.auto_update = true
     nodes_config.each do |node|
       node_name   = node[0] # name of node
       node_values = node[1] # content of node

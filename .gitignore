@@ -1,1 +1,6 @@
 .vagrant/
+keys/*.pub
+Ansible/**/*.zip
+Ansible/**/*.gz
+Ansible/**/*.jar
+Ansible/*.retry

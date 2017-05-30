@@ -10,7 +10,7 @@
       "host_ssh_port": 2225,
       "synced_folder": [
         {
-          "host_path": "~/ansible",
+          "host_path": "./ansible",
           "guest_path": "/ansible"
         },
         {
@@ -29,62 +29,14 @@
       "init_script": "./ansible-init.sh",
       "hdd2_size": ""
     },
-    "wls12c-r2-1": {
-      "vbox_vms_path": "D://VirtualBox VMs",
-      "box_name": "centos/7",
-      "domain_name": ".private",
-      "memory": 4096,
-      "cpu": 2,
-      "ip_host_only_adapter": "192.168.56.101",
-      "host_ssh_port": 2223,
-      "synced_folder": [
-        {
-          "host_path": "./keys",
-          "guest_path": "/keys"
-        }
-      ],
-      "forwarded_ports": [
-        {
-          "host": "",
-          "guest": "",
-          "id": ""
-        }
-      ],
-      "init_script": "./base.sh",
-      "hdd2_size": ""
-    },
-    "oradb3": {
+    "elk": {
       "vbox_vms_path": "D://VirtualBox VMs",
       "box_name": "centos/7",
       "domain_name": ".private",
       "memory": 2048,
       "cpu": 2,
-      "ip_host_only_adapter": "192.168.56.102",
-      "host_ssh_port": 2224,
-      "synced_folder": [
-        {
-          "host_path": "./keys",
-          "guest_path": "/keys"
-        }
-      ],
-      "forwarded_ports": [
-        {
-          "host": "",
-          "guest": "",
-          "id": ""
-        }
-      ],
-      "init_script": "./base.sh",
-      "hdd2_size": ""
-    },
-    "apache": {
-      "vbox_vms_path": "D://VirtualBox VMs",
-      "box_name": "centos/7",
-      "domain_name": ".private",
-      "memory": 1024,
-      "cpu": 1,
-      "ip_host_only_adapter": "192.168.56.104",
-      "host_ssh_port": 2226,
+      "ip_host_only_adapter": "192.168.56.101",
+      "host_ssh_port": 2223,
       "synced_folder": [
         {
           "host_path": "./keys",

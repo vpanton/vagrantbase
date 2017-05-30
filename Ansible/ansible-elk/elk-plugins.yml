@@ -1,0 +1,10 @@
+---
+#
+# Playbook to install the ELK stack
+#
+
+- hosts: elk
+#  remote_user: vagrant
+  roles:
+    - { role: es-plugins }
+    

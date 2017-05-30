@@ -1,0 +1,51 @@
+---
+#
+# Install/run redis
+#
+- name: Check/Install EPEL Repo for redis
+  yum: name={{epel_repo}}
+      state=present
+
+- name: Install redis-server
+  yum: name={{ item }} state=present
+  become: true
+  with_items:
+    - redis
+
+- name: Ensure Redis is started
+  service: name=redis state=started enabled=yes
+  become: true
+
+- name: Ensure Redis Configuration
+  template:
+    src=redis.conf.j2
+    dest=/etc/redis.conf
+    owner=root
+    group=root
+    mode=0644
+  become: true
+  register: redis_needs_restart
+
+    # start redis service
+- name: Start redis service
+  command: systemctl restart redis.service
+  ignore_errors: true
+  when: redis_needs_restart != 0
+
+- name: Check if redis is in use
+  shell: systemctl is-enabled redis.service | egrep -qv 'masked|disabled'
+  register: redis_in_use
+  ignore_errors: yes
+  tags:
+    # Skip ANSIBLE0012 Commands should not change things if nothing needs doing
+    # Determine if nginx is enabled
+    - skip_ansible_lint
+
+- name: Set redis to start on boot
+  command: systemctl enable redis.service
+  ignore_errors: true
+  when: redis_in_use.rc != 0
+
+- name: Remove EPEL Repo
+  yum: name={{epel_repo}}
+      state=absent

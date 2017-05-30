@@ -1,0 +1,17 @@
+---
+#
+# Install/run elasticsearch plugins
+#
+
+- elasticsearch_plugin:
+   state: present
+   name: '-b com.floragunn:search-guard-5:5.4.0-12'
+   plugin_bin: /usr/share/elasticsearch/bin/elasticsearch-plugin
+   timeout: null
+  register: elasticsearch_needs_restart
+
+    # start redis service
+- name: Start elasticsearch service
+  command: systemctl restart elasticsearch.service
+  ignore_errors: true
+  when: elasticsearch_needs_restart != 0

@@ -1,4 +1,5 @@
 .vagrant/
+/**/.git
 keys/*.pub
 Ansible/**/*.zip
 Ansible/**/*.gz
